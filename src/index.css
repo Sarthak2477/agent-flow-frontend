@@ -1,0 +1,330 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a0a;
+  --bg-tertiary: #111111;
+  --bg-elevated: #1a1a1a;
+  --border-primary: #1f1f1f;
+  --border-secondary: #2a2a2a;
+  --border-focus: #ffffff;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --text-tertiary: #666666;
+  --text-muted: #444444;
+  --accent-primary: #ffffff;
+  --accent-hover: #f0f0f0;
+  --status-success: #22c55e;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+  --status-info: #60a5fa;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code,
+pre,
+.font-mono {
+  font-family: 'Geist Mono', 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Vercel-style animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-dot {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.status-dot-success {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #111 25%, #1a1a1a 50%, #111 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Vercel-style card hover */
+.card-hover {
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card-hover:hover {
+  border-color: #2a2a2a;
+  background: #0a0a0a;
+}
+
+/* Focus styles */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
+/* Button base */
+.btn-primary {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  transition: background 0.15s ease, transform 0.1s ease;
+  border: 1px solid transparent;
+}
+
+.btn-primary:hover {
+  background: #e8e8e8;
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  border: 1px solid #2a2a2a;
+}
+
+.btn-secondary:hover {
+  background: #111111;
+  border-color: #3a3a3a;
+}
+
+/* Tag/badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid;
+  letter-spacing: 0.01em;
+}
+
+.badge-success {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.2);
+}
+
+.badge-warning {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.badge-error {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.badge-neutral {
+  color: #a0a0a0;
+  background: rgba(160, 160, 160, 0.08);
+  border-color: rgba(160, 160, 160, 0.15);
+}
+
+.badge-info {
+  color: #60a5fa;
+  background: rgba(96, 165, 250, 0.08);
+  border-color: rgba(96, 165, 250, 0.15);
+}
+
+/* Vercel-style divider */
+.divider {
+  height: 1px;
+  background: var(--border-primary);
+}
+
+/* Code block */
+.code-block {
+  background: #0a0a0a;
+  border: 1px solid #1f1f1f;
+  border-radius: var(--radius-md);
+  padding: 16px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+/* Input base styles */
+.input-base {
+  width: 100%;
+  background: #0a0a0a;
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input-base:focus {
+  border-color: #555555;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+}
+
+.input-base::placeholder {
+  color: #444444;
+}
+
+/* Vercel nav item */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: #a0a0a0;
+  transition: color 0.1s ease, background 0.1s ease;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.nav-item:hover {
+  color: #ffffff;
+  background: #111111;
+}
+
+.nav-item.active {
+  color: #ffffff;
+  background: #1a1a1a;
+}
+
+/* Table styles */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666666;
+  text-align: left;
+  padding: 8px 16px;
+  border-bottom: 1px solid #1f1f1f;
+  letter-spacing: 0.01em;
+}
+
+.data-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid #111111;
+  color: #e0e0e0;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: #060606;
+}
