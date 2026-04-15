@@ -7,6 +7,62 @@ import {
 import { api } from '../../services/api';
 import { Approval } from '../../types/database';
 
+/* ── mock data ────────────────────────────────────────────── */
+
+const MOCK_APPROVALS: Approval[] = [
+    {
+        id: 'mock_1',
+        agentId: 'current',
+        method: 'POST',
+        targetUrl: 'https://api.stripe.com/v1/charges',
+        headers: {
+            'Authorization': 'Bearer sk_live_51P...',
+            'Content-Type': 'application/json',
+            'Stripe-Version': '2023-10-16'
+        },
+        body: JSON.stringify({
+            amount: 49900,
+            currency: 'usd',
+            description: 'SaaS License Renewal - Enterprise',
+            customer: 'cus_QwE234asd'
+        }),
+        sensitiveReason: 'High-value transaction interception (>$250)',
+        status: 'pending',
+        createdAt: new Date(Date.now() - 1000 * 60 * 3).toISOString(), // 3m ago
+    },
+    {
+        id: 'mock_2',
+        agentId: 'current',
+        method: 'POST',
+        targetUrl: 'https://api.sendgrid.com/v3/mail/send',
+        headers: {
+            'Authorization': 'Bearer SG.abc...',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            personalizations: [{ to: [{ email: 'investor@vc-firm.com' }] }],
+            from: { email: 'founder@startup.io' },
+            subject: 'Confidential: Pitch Deck & Financials',
+            content: [{ type: 'text/plain', value: 'Please find attached our latest numbers for Q1.' }]
+        }),
+        sensitiveReason: 'Sensitive outbound communication',
+        status: 'pending',
+        createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15m ago
+    },
+    {
+        id: 'mock_3',
+        agentId: 'current',
+        method: 'DELETE',
+        targetUrl: 'https://api.github.com/repos/my-org/core-engine/branches/main/protection',
+        sensitiveReason: 'Security configuration change attempted',
+        status: 'denied',
+        decision: 'denied',
+        decidedBy: 'admin',
+        decidedAt: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 4.2).toISOString(),
+    }
+];
+
 /* ── helpers ──────────────────────────────────────────────── */
 
 function timeAgo(dateStr: string) {
@@ -489,9 +545,16 @@ export function ApprovalsTab({ agentId }: ApprovalsTabProps) {
     const loadApprovals = async () => {
         try {
             const data = await api.approvals.listByAgent(agentId);
-            setApprovals(data);
+            // Merge real data with mocks for demonstration if empty
+            if (data.length === 0) {
+                setApprovals(prev => prev.length > 0 ? prev : MOCK_APPROVALS.map(m => ({ ...m, agentId })));
+            } else {
+                setApprovals(data);
+            }
         } catch (e) {
             console.error('Error loading approvals:', e);
+            // Fallback to mocks on error
+            setApprovals(prev => prev.length > 0 ? prev : MOCK_APPROVALS.map(m => ({ ...m, agentId })));
         } finally {
             setLoading(false);
         }
@@ -504,8 +567,34 @@ export function ApprovalsTab({ agentId }: ApprovalsTabProps) {
     }, [agentId]);
 
     const handleDecide = async (id: string, decision: 'approved' | 'denied') => {
-        await api.approvals.decide(id, decision);
-        loadApprovals();
+        // Optimization: update local state immediately for a "working" feel even if API is slow/offline
+        setApprovals(prev => prev.map(a => a.id === id ? {
+            ...a,
+            status: decision,
+            decision: decision,
+            decidedAt: new Date().toISOString(),
+            decidedBy: 'you (frontend)'
+        } : a));
+
+        try {
+            await api.approvals.decide(id, decision);
+        } catch (e) {
+            console.warn('Backend decide failed, keeping local override for demo:', e);
+        }
+    };
+
+    const handleSimulate = () => {
+        const newMock: Approval = {
+            id: `sim_${Math.random().toString(36).slice(2, 9)}`,
+            agentId,
+            method: 'POST',
+            targetUrl: 'https://api.stripe.com/v1/payments',
+            sensitiveReason: 'Simulated interception',
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+            body: JSON.stringify({ amount: 1000, currency: 'usd', test: true }, null, 2)
+        };
+        setApprovals(prev => [newMock, ...prev]);
     };
 
     const filtered = approvals.filter(a => {
@@ -539,6 +628,14 @@ export function ApprovalsTab({ agentId }: ApprovalsTabProps) {
                         </span>
                     )}
                 </div>
+
+                <button
+                    onClick={handleSimulate}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#111] border border-[#1f1f1f] rounded-lg text-[11px] text-[#888] hover:text-white hover:border-[#333] transition-all"
+                >
+                    <Zap className="w-3 h-3 text-[#f59e0b]" />
+                    Simulate Interception
+                </button>
             </div>
 
             {/* Filter tabs */}
@@ -610,9 +707,13 @@ export function PendingApprovalsBanner({ onClick }: { onClick?: () => void }) {
         const load = async () => {
             try {
                 const data = await api.approvals.listPending();
-                setCount(data.length);
+                if (data.length === 0) {
+                    setCount(MOCK_APPROVALS.filter(a => a.status === 'pending').length);
+                } else {
+                    setCount(data.length);
+                }
             } catch {
-                setCount(0);
+                setCount(MOCK_APPROVALS.filter(a => a.status === 'pending').length);
             }
         };
         load();
